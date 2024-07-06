@@ -21,7 +21,6 @@ public class Main {
 
          final BitSet bitSet = new BitSet(8);
          bitSet.flip(7);
-           System.out.println(bitSet);
          final byte[] bufResponse = ByteBuffer.allocate(512)
                  .putShort((short) 1234)
                  .put(bitSet.toByteArray())
