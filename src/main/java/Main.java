@@ -1,6 +1,9 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.util.BitSet;
 
 public class Main {
   public static void main(String[] args){
@@ -16,7 +19,19 @@ public class Main {
          serverSocket.receive(packet);
          System.out.println("Received data");
 
-         final byte[] bufResponse = new byte[512];
+         final BitSet bitSet = new BitSet(8);
+         bitSet.flip(7);
+           System.out.println(bitSet);
+         final byte[] bufResponse = ByteBuffer.allocate(512)
+                 .putShort((short) 1234)
+                 .put(bitSet.toByteArray())
+                 .put((byte) 0)
+                 .putShort((short) 0)
+                 .putShort((short) 0)
+                 .putShort((short) 0)
+                 .putShort((short) 0)
+                 .order(ByteOrder.BIG_ENDIAN)
+                 .array();
          final DatagramPacket packetResponse = new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
          serverSocket.send(packetResponse);
        }
