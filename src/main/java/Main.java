@@ -41,13 +41,12 @@ public class Main {
                  .qType((short) 1)
                  .qClass((short) 1);
 
-         final ByteBuffer byteBuffer = ByteBuffer.allocate(512);
+         final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
+                 .order(ByteOrder.BIG_ENDIAN);
          header.loadToByteBuffer(byteBuffer);
          name.loadToByteBuffer(byteBuffer);
 
-         final byte[] bufResponse =
-                 byteBuffer.order(ByteOrder.BIG_ENDIAN)
-                         .array();
+         final byte[] bufResponse = byteBuffer.array();
 
          final DatagramPacket packetResponse = new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
          serverSocket.send(packetResponse);
