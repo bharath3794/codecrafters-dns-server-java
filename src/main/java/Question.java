@@ -1,12 +1,8 @@
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
 
-public class Name {
+public class Question {
     private String qName;
     private short qType;
     private short qClass;
@@ -15,7 +11,7 @@ public class Name {
         return qName;
     }
 
-    public Name qName(String qName) {
+    public Question qName(String qName) {
         this.qName = qName;
         return this;
     }
@@ -24,7 +20,7 @@ public class Name {
         return qType;
     }
 
-    public Name qType(short qType) {
+    public Question qType(short qType) {
         this.qType = qType;
         return this;
     }
@@ -33,14 +29,14 @@ public class Name {
         return qClass;
     }
 
-    public Name qClass(short qClass) {
+    public Question qClass(short qClass) {
         this.qClass = qClass;
         return this;
     }
 
-    private byte[] encodedDomainName() {
+    public static byte[] encodedDomainName(String domainName) {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();) {
-            for (String s: this.getqName().split("\\.")) {
+            for (String s: domainName.split("\\.")) {
                 byteArrayOutputStream.write(s.length());
                 byteArrayOutputStream.write(s.getBytes());
             }
@@ -52,7 +48,7 @@ public class Name {
     }
 
     public void loadToByteBuffer(ByteBuffer buffer) {
-        buffer.put(this.encodedDomainName())
+        buffer.put(Question.encodedDomainName(this.getqName()))
                 .putShort(this.getqType())
                 .putShort(this.getqClass());
     }

@@ -3,7 +3,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.BitSet;
 
 public class Main {
   public static void main(String[] args){
@@ -36,15 +35,25 @@ public class Main {
                  .nsCount((short) 0)
                  .arCount((short) 0);
 
-         Name name = new Name();
-         name.qName("codecrafters.io")
+         String domainName = "codecrafters.io";
+         Question question = new Question();
+         question.qName(domainName)
                  .qType((short) 1)
                  .qClass((short) 1);
+
+         Answer answer = new Answer();
+         answer.anName(domainName)
+                 .anType((short) 1)
+                 .anClass((short) 1)
+                 .anTtl(60)
+                 .anRLength((short) 4)
+                 .anRData(new byte[]{8,8,8,8});
 
          final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                  .order(ByteOrder.BIG_ENDIAN);
          header.loadToByteBuffer(byteBuffer);
-         name.loadToByteBuffer(byteBuffer);
+         question.loadToByteBuffer(byteBuffer);
+         answer.loadToByteBuffer(byteBuffer);
 
          final byte[] bufResponse = byteBuffer.array();
 

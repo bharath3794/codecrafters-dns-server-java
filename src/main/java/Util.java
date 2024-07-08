@@ -1,3 +1,6 @@
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 public class Util {
 
     public static String postPaddedString(String input, char padChar, int maxLength) {
