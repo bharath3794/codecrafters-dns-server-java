@@ -31,7 +31,7 @@ public class Main {
                  .reserved2(false)
                  .reserved3(false)
                  .rCode(RCode.NO_ERROR)
-                 .qdCount((short) 0)
+                 .qdCount((short) 1)
                  .anCount((short) 0)
                  .nsCount((short) 0)
                  .arCount((short) 0);
