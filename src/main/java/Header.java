@@ -14,10 +14,10 @@ public class Header {
     private boolean reserved2;
     private boolean reserved3;
     private RCode rCode;
-    private int qdCount;
-    private int anCount;
-    private int nsCount;
-    private int arCount;
+    private short qdCount;
+    private short anCount;
+    private short nsCount;
+    private short arCount;
 
     public short getMessageId() {
         return messageId;
@@ -118,86 +118,89 @@ public class Header {
         return this;
     }
 
-    public int getQdCount() {
+    public short getQdCount() {
         return qdCount;
     }
 
-    public Header qdCount(int qdCount) {
-        this.qdCount = qdCount & 0xFFFF;
+    public Header qdCount(short qdCount) {
+        this.qdCount = qdCount;
         return this;
     }
 
-    public int getAnCount() {
-        return anCount & 0xFFFF;
+    public short getAnCount() {
+        return anCount;
     }
 
-    public Header anCount(int anCount) {
-        this.anCount = anCount & 0xFFFF;
+    public Header anCount(short anCount) {
+        this.anCount = anCount;
         return this;
     }
 
-    public int getNsCount() {
+    public short getNsCount() {
         return nsCount;
     }
 
-    public Header nsCount(int nsCount) {
-        this.nsCount = nsCount & 0xFFFF;
+    public Header nsCount(short nsCount) {
+        this.nsCount = nsCount;
         return this;
     }
 
-    public int getArCount() {
+    public short getArCount() {
         return arCount;
     }
 
-    public Header arCount(int arCount) {
-        this.arCount = arCount & 0xFFFF;
+    public Header arCount(short arCount) {
+        this.arCount = arCount;
         return this;
     }
 
     private byte[] getByteArray() {
         BitSet bitSet = new BitSet( 16);
         if (this.isQueryResponse())
-            bitSet.flip(15);
-        int index = 11;
-        for (char c: Integer.toBinaryString(opCode.getCode()).toCharArray()) {
-            if (c=='1')
-                bitSet.set(index);
-            index++;
+            bitSet.flip(7);
+        char[] opCodeBits = Integer.toBinaryString(opCode.getCode()).toCharArray();
+        int bitSetIndex = 6;
+        for (int i = opCodeBits.length-1; i>=0; i--) {
+            if (bitSetIndex < 3)
+                throw new IndexOutOfBoundsException("OpCode bits range from index 3 to 6 (inclusive) and you accessed index " + bitSetIndex);
+            if (opCodeBits[i]=='1')
+                bitSet.set(bitSetIndex);
+            bitSetIndex--;
         }
         if (this.isAuthoritativeAnswer())
-            bitSet.set(10);
+            bitSet.set(2);
         if (this.isTruncation())
-            bitSet.set(9);
+            bitSet.set(1);
         if (this.isRecursionDesired())
-            bitSet.set(8);
+            bitSet.set(0);
         if (this.isRecursionAvailable())
-            bitSet.set(7);
+            bitSet.set(15);
         if (this.isReserved1())
-            bitSet.set(6);
+            bitSet.set(14);
         if (this.isReserved2())
-            bitSet.set(5);
+            bitSet.set(13);
         if (this.isReserved3())
-            bitSet.set(4);
+            bitSet.set(12);
 
-//        index = 0;
-//        for (char c: Integer.toBinaryString(rCode.getCode()).toCharArray()) {
-//            if (c=='1')
-//                bitSet.set(index);
-//            index++;
-//        }
+        char[] rCodeBits = Integer.toBinaryString(rCode.getCode()).toCharArray();
+        bitSetIndex = 11;
+        for (int i = rCodeBits.length-1; i>=0; i--) {
+            if (bitSetIndex < 8)
+                throw new IndexOutOfBoundsException("OpCode bits range from index 8 to 11 (inclusive) and you accessed index " + bitSetIndex);
+            if (rCodeBits[i]=='1')
+                bitSet.set(bitSetIndex);
+            bitSetIndex--;
+        }
         return bitSet.toByteArray();
     }
 
-    public byte[] convertToByteArray(int capacity) {
-        final byte[] bufResponse = ByteBuffer.allocate(capacity)
-                .putShort(this.getMessageId())
+    public void loadToByteBuffer(ByteBuffer buffer) {
+        buffer.putShort(this.getMessageId())
                 .put(this.getByteArray())
-                .putShort((short) this.getQdCount())
-                .putShort((short) this.getAnCount())
-                .putShort((short) this.getNsCount())
-                .putShort((short) this.getArCount())
-                .order(ByteOrder.BIG_ENDIAN)
-                .array();
-        return bufResponse;
+                .putShort(this.getQdCount())
+                .putShort(this.getAnCount())
+                .putShort(this.getNsCount())
+                .putShort(this.getArCount())
+                .order(ByteOrder.BIG_ENDIAN);
     }
 }

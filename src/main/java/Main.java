@@ -19,20 +19,6 @@ public class Main {
          serverSocket.receive(packet);
          System.out.println("Received data");
 
-//           final BitSet bitSet = new BitSet(8);
-//           bitSet.flip(7);
-//           System.out.println(bitSet);
-//           final byte[] bufResponse = ByteBuffer.allocate(512)
-//                   .putShort((short)1234)
-//                   .put(bitSet.toByteArray())
-//                   .put((byte)0)
-//                   .putShort((short)0)
-//                   .putShort((short)0)
-//                   .putShort((short)0)
-//                   .putShort((short)0)
-//                   .order(ByteOrder.BIG_ENDIAN)
-//                   .array();
-
          Header header = new Header();
          header.messageId((short) 1234)
                  .queryResponse(true)
@@ -45,12 +31,22 @@ public class Main {
                  .reserved2(false)
                  .reserved3(false)
                  .rCode(RCode.NO_ERROR)
-                 .qdCount(0)
-                 .anCount(0)
-                 .nsCount(0)
-                 .arCount(0);
+                 .qdCount((short) 0)
+                 .anCount((short) 0)
+                 .nsCount((short) 0)
+                 .arCount((short) 0);
 
-         final byte[] bufResponse = header.convertToByteArray(512);
+         Name name = new Name();
+         name.qName("codecrafters.io")
+                 .qType((short) 1)
+                 .qClass((short) 1);
+
+         final ByteBuffer byteBuffer = ByteBuffer.allocate(512);
+         header.loadToByteBuffer(byteBuffer);
+         name.loadToByteBuffer(byteBuffer);
+
+         final byte[] bufResponse = byteBuffer.array();
+
          final DatagramPacket packetResponse = new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
          serverSocket.send(packetResponse);
        }
