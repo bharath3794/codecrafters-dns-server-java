@@ -154,54 +154,38 @@ public class Header {
         return this;
     }
 
-    private byte[] getByteArray() {
-        BitSet bitSet = new BitSet( 16);
+    private short getFlags() {
+        int flags = 0b0_0000_0_0_0_0_0_0_0_0000;
         if (this.isQueryResponse())
-            bitSet.flip(7);
-        char[] opCodeBits = Integer.toBinaryString(opCode.getCode()).toCharArray();
-        int bitSetIndex = 6;
-        for (int i = opCodeBits.length-1; i>=0; i--) {
-            if (bitSetIndex < 3)
-                throw new IndexOutOfBoundsException("OpCode bits range from index 3 to 6 (inclusive) and you accessed index " + bitSetIndex);
-            if (opCodeBits[i]=='1')
-                bitSet.set(bitSetIndex);
-            bitSetIndex--;
-        }
+            flags |= 0b1_0000_0_0_0_0_0_0_0_0000;
+        String opCodeBits = Integer.toBinaryString(opCode.getCode());
+        opCodeBits = Util.prePaddedString(opCodeBits, '0', 5);
+        opCodeBits = Util.postPaddedString(opCodeBits, '0', 16);
+        flags |= Integer.parseInt(opCodeBits, 2);
         if (this.isAuthoritativeAnswer())
-            bitSet.set(2);
+            flags |= 0b0_0000_1_0_0_0_0_0_0_0000;
         if (this.isTruncation())
-            bitSet.set(1);
+            flags |= 0b0_0000_0_1_0_0_0_0_0_0000;
         if (this.isRecursionDesired())
-            bitSet.set(0);
+            flags |= 0b0_0000_0_0_1_0_0_0_0_0000;
         if (this.isRecursionAvailable())
-            bitSet.set(15);
+            flags |= 0b0_0000_0_0_0_1_0_0_0_0000;
         if (this.isReserved1())
-            bitSet.set(14);
+            flags |= 0b0_0000_0_0_0_0_1_0_0_0000;
         if (this.isReserved2())
-            bitSet.set(13);
+            flags |= 0b0_0000_0_0_0_0_0_1_0_0000;
         if (this.isReserved3())
-            bitSet.set(12);
+            flags |= 0b0_0000_0_0_0_0_0_0_1_0000;
 
-        char[] rCodeBits = Integer.toBinaryString(rCode.getCode()).toCharArray();
-        bitSetIndex = 11;
-        for (int i = rCodeBits.length-1; i>=0; i--) {
-            if (bitSetIndex < 8)
-                throw new IndexOutOfBoundsException("OpCode bits range from index 8 to 11 (inclusive) and you accessed index " + bitSetIndex);
-            if (rCodeBits[i]=='1')
-                bitSet.set(bitSetIndex);
-            bitSetIndex--;
-        }
-        bitSet.flip(0);
-        return bitSet.toByteArray();
+        String rCodeBits = Integer.toBinaryString(rCode.getCode());
+        rCodeBits = Util.prePaddedString(rCodeBits, '0', 16);
+        flags |= Integer.parseInt(rCodeBits, 2);
+        return (short) flags;
     }
 
     public void loadToByteBuffer(ByteBuffer buffer) {
-        BitSet bitSet1 = new BitSet(8);
-        bitSet1.flip(7);
-        BitSet bitSet2 = new BitSet(8);
         buffer.putShort(this.getMessageId())
-                .put(bitSet1.toByteArray())
-                .put(bitSet2.toByteArray())
+                .putShort(getFlags())
                 .putShort(this.getQdCount())
                 .putShort(this.getAnCount())
                 .putShort(this.getNsCount())
