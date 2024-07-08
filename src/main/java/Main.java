@@ -30,7 +30,7 @@ public class Main {
                  .reserved2(false)
                  .reserved3(false)
                  .rCode(RCode.NO_ERROR)
-                 .qdCount((short) 1)
+                 .qdCount((short) 0)
                  .anCount((short) 0)
                  .nsCount((short) 0)
                  .arCount((short) 0);
@@ -40,6 +40,7 @@ public class Main {
          question.qName(domainName)
                  .qType((short) 1)
                  .qClass((short) 1);
+         header.qdCount((short) 1);
 
          Answer answer = new Answer();
          answer.anName(domainName)
@@ -48,6 +49,7 @@ public class Main {
                  .anTtl(60)
                  .anRLength((short) 4)
                  .anRData(new byte[]{8,8,8,8});
+         header.anCount((short) 1);
 
          final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                  .order(ByteOrder.BIG_ENDIAN);
