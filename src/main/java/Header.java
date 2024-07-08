@@ -196,7 +196,7 @@ public class Header {
 
     public void loadToByteBuffer(ByteBuffer buffer) {
         buffer.putShort(this.getMessageId())
-                .putShort((short) 0b10000000_00000000)
+                .put(this.getByteArray())
                 .putShort(this.getQdCount())
                 .putShort(this.getAnCount())
                 .putShort(this.getNsCount())
