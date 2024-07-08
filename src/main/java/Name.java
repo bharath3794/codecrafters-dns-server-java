@@ -42,7 +42,7 @@ public class Name {
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();) {
             for (String s: this.getqName().split("\\.")) {
                 byteArrayOutputStream.write(s.length());
-                byteArrayOutputStream.write(s.getBytes(StandardCharsets.UTF_8));
+                byteArrayOutputStream.write(s.getBytes());
             }
             byteArrayOutputStream.write(0);
             return byteArrayOutputStream.toByteArray();
@@ -54,7 +54,6 @@ public class Name {
     public void loadToByteBuffer(ByteBuffer buffer) {
         buffer.put(this.encodedDomainName())
                 .putShort(this.getqType())
-                .putShort(this.getqClass())
-                .order(ByteOrder.BIG_ENDIAN);
+                .putShort(this.getqClass());
     }
 }

@@ -200,7 +200,6 @@ public class Header {
                 .putShort(this.getQdCount())
                 .putShort(this.getAnCount())
                 .putShort(this.getNsCount())
-                .putShort(this.getArCount())
-                .order(ByteOrder.BIG_ENDIAN);
+                .putShort(this.getArCount());
     }
 }

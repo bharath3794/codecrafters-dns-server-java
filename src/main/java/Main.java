@@ -45,7 +45,9 @@ public class Main {
          header.loadToByteBuffer(byteBuffer);
          name.loadToByteBuffer(byteBuffer);
 
-         final byte[] bufResponse = byteBuffer.array();
+         final byte[] bufResponse =
+                 byteBuffer.order(ByteOrder.BIG_ENDIAN)
+                         .array();
 
          final DatagramPacket packetResponse = new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
          serverSocket.send(packetResponse);
