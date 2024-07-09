@@ -19,7 +19,12 @@ public class Main {
          serverSocket.receive(packet);
          System.out.println("Received data");
 
+         System.out.println("Read Header Section from Received Packet: " + Arrays.toString(Arrays.copyOfRange(packet.getData(), 0, 12)));
+
+         System.out.println("Read Question Section from Received Packet: " + Arrays.toString(Arrays.copyOfRange(packet.getData(), 12, packet.getLength())));
+
          ByteBuffer inputByteBuffer = ByteBuffer.wrap(buf);
+         System.out.println("inputByteBuffer = " + Arrays.toString(inputByteBuffer.array()));
 
          Header header = Header.decodeHeader(inputByteBuffer);
          header.queryResponse(true)
@@ -31,15 +36,13 @@ public class Main {
                  .reserved3(false)
                  .rCode(header.getOpCode() == OpCode.QUERY ? RCode.NO_ERROR : RCode.NOT_IMPLEMENTED);
 
-         String domainName = "codecrafters.io";
-         Question question = new Question();
-         question.qName(domainName)
-                 .qType((short) 1)
+         Question question = Question.decodeQuestion(inputByteBuffer);
+         question.qType((short) 1)
                  .qClass((short) 1);
          header.qdCount((short) 1);
 
          Answer answer = new Answer();
-         answer.anName(domainName)
+         answer.anName(question.getqName())
                  .anType((short) 1)
                  .anClass((short) 1)
                  .anTtl(60)

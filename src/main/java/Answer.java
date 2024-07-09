@@ -3,7 +3,9 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 
 /*
-Reference: https://www.zytrax.com/books/dns/ch15/#answer
+Reference:
+    https://www.zytrax.com/books/dns/ch15/#answer
+    https://datatracker.ietf.org/doc/html/rfc1035#section-4.1.3
 
 15.4 The DNS Answer (Answer Section)
 The Answer, Authority and Additional Section all comprise RRs and hence share the same format. The section the record appears in determines its type e.g. an A RR can appear in the Answer or Additional section. So far this stuff has been relatively straightforward if messy - take a deep breath before reading on. The format of these records is:

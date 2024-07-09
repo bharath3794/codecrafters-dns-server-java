@@ -1,9 +1,12 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 
 /*
-Reference: https://www.zytrax.com/books/dns/ch15/#question
+Reference:
+    https://www.zytrax.com/books/dns/ch15/#question
+    https://datatracker.ietf.org/doc/html/rfc1035#section-4.1.2
 15.3 The DNS Question (Question Section)
 While it is normal to have only one question per message, it is permissible to have any number defined by QDCOUNT each question has the same format as defined below:
 
@@ -49,6 +52,7 @@ QCLASS	Unsigned 16 bit value. The CLASS of resource records being requested e.g.
             x'0001 (1)	IN or Internet
  */
 public class Question {
+    public static final int START_INDEX = 12;
     private String qName;
     private short qType;
     private short qClass;
@@ -97,5 +101,46 @@ public class Question {
         buffer.put(Question.encodedDomainName(this.getqName()))
                 .putShort(this.getqType())
                 .putShort(this.getqClass());
+    }
+
+    public static Question decodeQuestion(ByteBuffer byteBuffer) {
+        Question question = new Question();
+
+        // Position buffer to starting index of header section
+        byteBuffer.position(Question.START_INDEX);
+
+
+//        System.out.println("Set byteBuffer.position() to = " + byteBuffer.position());
+        // Extract Labels
+        int curLength = byteBuffer.get();
+        StringBuilder sb = new StringBuilder();
+        byte[] byteArr = byteBuffer.array();
+        while (curLength > 0) {
+//            System.out.println("byteBuffer.position() = " + byteBuffer.position());
+//            System.out.println("curLength = " + curLength);
+            if (byteBuffer.position() > Question.START_INDEX+1) {
+                sb.append('.');
+            }
+            sb.append(new String(byteArr, byteBuffer.position(), curLength, StandardCharsets.UTF_8));
+            int newPosition = curLength + byteBuffer.position();
+//            System.out.println("newPosition = " + newPosition);
+            byteBuffer.position(newPosition);
+            if (byteBuffer.hasRemaining()) {
+                curLength = byteBuffer.get();
+            }
+        }
+
+        String qName = sb.toString();
+//        System.out.println("qName: " + qName);
+
+        // Extract qType
+        short qType = byteBuffer.getShort();
+
+        //Extract qClass
+        short qClass = byteBuffer.getShort();
+
+        return question.qName(qName)
+                .qType(qType)
+                .qClass(qClass);
     }
 }

@@ -4,7 +4,9 @@ import java.util.BitSet;
 
 
 /*
-Reference: https://www.zytrax.com/books/dns/ch15/#header
+Reference:
+    https://datatracker.ietf.org/doc/html/rfc1035#section-4.1.1
+    https://www.zytrax.com/books/dns/ch15/#header
 15.2 The Message Header
 Present in all messages. Never empty. Contains various flags and values which control the transaction. If you are not comfortable with bits, bytes and hex values take up origami or read this quick memory jogger. And while you are in this receptive mode you may want remind yourself that bit numbering standards are a real mess.
 
@@ -41,7 +43,7 @@ NSCOUNT	Unsigned 16 bit integer specifying the number of name server resource re
 ARCOUNT	Unsigned 16 bit integer specifying the number of resource records in the Additional Section. May be 0 in which case no addtional record(s) is(are) present in the message.
  */
 public class Header {
-    public static final int START_INDEX_HEADER_SECTION = 0;
+    public static final int START_INDEX = 0;
     private short messageId;
     private boolean queryResponse;
     private OpCode opCode;
@@ -234,7 +236,7 @@ public class Header {
     public static Header decodeHeader(ByteBuffer byteBuffer) {
         Header header = new Header();
         // Position buffer to starting index of header section
-        byteBuffer.position(Header.START_INDEX_HEADER_SECTION);
+        byteBuffer.position(Header.START_INDEX);
 
         // Read ID which is first byte
         final short packetId = byteBuffer.getShort();
