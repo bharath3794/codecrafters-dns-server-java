@@ -3,6 +3,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 
 public class Main {
   public static void main(String[] args){
@@ -18,22 +19,17 @@ public class Main {
          serverSocket.receive(packet);
          System.out.println("Received data");
 
-         Header header = new Header();
-         header.messageId((short) 1234)
-                 .queryResponse(true)
-                 .opCode(OpCode.QUERY)
+         ByteBuffer inputByteBuffer = ByteBuffer.wrap(buf);
+
+         Header header = Header.decodeHeader(inputByteBuffer);
+         header.queryResponse(true)
                  .authoritativeAnswer(false)
                  .truncation(false)
-                 .recursionDesired(false)
                  .recursionAvailable(false)
                  .reserved1(false)
                  .reserved2(false)
                  .reserved3(false)
-                 .rCode(RCode.NO_ERROR)
-                 .qdCount((short) 0)
-                 .anCount((short) 0)
-                 .nsCount((short) 0)
-                 .arCount((short) 0);
+                 .rCode(header.getOpCode() == OpCode.QUERY ? RCode.NO_ERROR : RCode.NOT_IMPLEMENTED);
 
          String domainName = "codecrafters.io";
          Question question = new Question();
