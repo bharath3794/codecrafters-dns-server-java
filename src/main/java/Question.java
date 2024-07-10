@@ -117,6 +117,7 @@ public class Question {
         Pointer Detection:
             1. Check if the two most significant bits of length are 11 (binary 0xC0).
             2. Calculating Offset: The pointer offset is calculated from the next 14 bits.
+
      */
     private static String readLabels(ByteBuffer byteBuffer) {
         int curLength;
