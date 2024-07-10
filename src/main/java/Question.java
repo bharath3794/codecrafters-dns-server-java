@@ -2,6 +2,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.util.StringJoiner;
 
 /*
 Reference:
@@ -103,6 +104,62 @@ public class Question {
                 .putShort(this.getqClass());
     }
 
+    /*
+    In DNS messages, domain names can be compressed to save space. This compression is done by replacing a sequence of labels with a pointer to a previously used sequence. The method readCompressedLabel recursively resolves these pointers to reconstruct the full domain name.
+
+    Detailed Explanation
+        Purpose of DNS Name Compression
+            DNS Name Compression: To reduce the size of DNS messages, domain names can be compressed. Instead of repeating the same labels multiple times, a pointer can be used to refer to an earlier occurrence of the same labels. This is done by using the two most significant bits of a length byte to indicate a pointer.
+        How DNS Name Compression Works
+            Label Length and Pointer:
+                1. A byte representing the length of the label (0-63).
+                2. If the two most significant bits of this byte are 11 (binary), the remaining 14 bits form a pointer to another part of the DNS message.
+        Pointer Detection:
+            1. Check if the two most significant bits of length are 11 (binary 0xC0).
+            2. Calculating Offset: The pointer offset is calculated from the next 14 bits.
+     */
+    private static String readLabels(ByteBuffer byteBuffer) {
+        int curLength;
+        StringBuilder sb = new StringBuilder();
+        byte[] byteArr = byteBuffer.array();
+        int newPosition = 0;
+        while (byteBuffer.hasRemaining() && (curLength = byteBuffer.get()) != 0) {
+//            System.out.println("byteBuffer.position() = " + byteBuffer.position());
+//            System.out.println("curLength = " + curLength);
+            // Check if length represents a pointer offset with first two bits set
+            // Pointer offset will usually be of 16 bits ~ 2 bytes
+            if ((curLength & 0b1100_0000) == 0b1100_0000) {
+                // compressed label
+                if (!byteBuffer.hasRemaining()) {
+                    throw new IndexOutOfBoundsException("ByteBuffer has no next byte to read pointer offset");
+                }
+                // Pointer offset represents last 6 bits of curLength and next byte (8 bits) with total 14 bits out of 16 bits
+                int pointerOffset = ((curLength & 0b0011_1111) << 8) | (byteBuffer.get() & 0b1111_1111);
+                if (newPosition == 0)
+                    newPosition = byteBuffer.position();
+                byteBuffer.position(pointerOffset);
+            } else {
+                // uncompressed label
+                if (
+                        !sb.isEmpty()
+                    // Below statement also works same
+                    // byteBuffer.position() > Question.START_INDEX+1
+                ) {
+                    sb.append('.');
+                }
+                sb.append(new String(byteArr, byteBuffer.position(), curLength, StandardCharsets.UTF_8));
+                int movePosition = curLength + byteBuffer.position();
+//            System.out.println("movePosition = " + movePosition);
+                byteBuffer.position(movePosition);
+            }
+
+        }
+        if (newPosition != 0) {
+            byteBuffer.position(newPosition);
+        }
+        return sb.toString();
+    }
+
     public static Question decodeQuestion(ByteBuffer byteBuffer) {
         Question question = new Question();
 
@@ -112,25 +169,7 @@ public class Question {
 
 //        System.out.println("Set byteBuffer.position() to = " + byteBuffer.position());
         // Extract Labels
-        int curLength = byteBuffer.get();
-        StringBuilder sb = new StringBuilder();
-        byte[] byteArr = byteBuffer.array();
-        while (curLength > 0) {
-//            System.out.println("byteBuffer.position() = " + byteBuffer.position());
-//            System.out.println("curLength = " + curLength);
-            if (byteBuffer.position() > Question.START_INDEX+1) {
-                sb.append('.');
-            }
-            sb.append(new String(byteArr, byteBuffer.position(), curLength, StandardCharsets.UTF_8));
-            int newPosition = curLength + byteBuffer.position();
-//            System.out.println("newPosition = " + newPosition);
-            byteBuffer.position(newPosition);
-            if (byteBuffer.hasRemaining()) {
-                curLength = byteBuffer.get();
-            }
-        }
-
-        String qName = sb.toString();
+        String qName = readLabels(byteBuffer);
 //        System.out.println("qName: " + qName);
 
         // Extract qType
