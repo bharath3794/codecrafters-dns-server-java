@@ -3,7 +3,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Main {
   public static void main(String[] args){
@@ -36,28 +38,32 @@ public class Main {
                  .reserved3(false)
                  .rCode(header.getOpCode() == OpCode.QUERY ? RCode.NO_ERROR : RCode.NOT_IMPLEMENTED);
 
-         Question question = Question.decodeQuestion(inputByteBuffer);
-         question.qType((short) 1)
-                 .qClass((short) 1);
-         header.qdCount((short) 1);
-
-         Answer answer = new Answer();
-         answer.anName(question.getqName())
-                 .anType((short) 1)
-                 .anClass((short) 1)
-                 .anTtl(60)
-                 .anRLength((short) 4)
-                 .anRData(new byte[]{8,8,8,8});
-         header.anCount((short) 1);
-
+         header.anCount(header.getQdCount());
          final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                  .order(ByteOrder.BIG_ENDIAN);
          header.loadToByteBuffer(byteBuffer);
-         question.loadToByteBuffer(byteBuffer);
-         answer.loadToByteBuffer(byteBuffer);
+
+         List<Question> questions = new ArrayList<>();
+         List<Answer> answers = new ArrayList<>();
+         for (int i=0; i<header.getQdCount(); i++) {
+           Question question = Question.decodeQuestion(inputByteBuffer);
+           question.qType((short) 1)
+                   .qClass((short) 1);
+           questions.add(question);
+           Answer answer = new Answer();
+           answer.anName(question.getqName())
+                   .anType((short) 1)
+                   .anClass((short) 1)
+                   .anTtl(60)
+                   .anRLength((short) 4)
+                   .anRData(new byte[]{8,8,8,8});
+           answers.add(answer);
+         }
+
+         questions.stream().forEach(question -> question.loadToByteBuffer(byteBuffer));
+         answers.stream().forEach(answer -> answer.loadToByteBuffer(byteBuffer));
 
          final byte[] bufResponse = byteBuffer.array();
-
          final DatagramPacket packetResponse = new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
          serverSocket.send(packetResponse);
        }

@@ -161,11 +161,11 @@ public class Question {
         return sb.toString();
     }
 
-    public static Question decodeQuestion(ByteBuffer byteBuffer) {
+    public static Question decodeQuestion(ByteBuffer byteBuffer, int startPosition) {
         Question question = new Question();
 
         // Position buffer to starting index of header section
-        byteBuffer.position(Question.START_INDEX);
+        byteBuffer.position(startPosition);
 
 
 //        System.out.println("Set byteBuffer.position() to = " + byteBuffer.position());
@@ -182,5 +182,9 @@ public class Question {
         return question.qName(qName)
                 .qType(qType)
                 .qClass(qClass);
+    }
+
+    public static Question decodeQuestion(ByteBuffer byteBuffer) {
+        return Question.decodeQuestion(byteBuffer, Question.START_INDEX);
     }
 }
