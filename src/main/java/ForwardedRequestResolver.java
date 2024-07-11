@@ -19,14 +19,16 @@ public class ForwardedRequestResolver implements RequestResolver {
 
     @Override
     public void resolve() throws IOException {
+        System.out.println("Resolving ");
         byte[] request = new byte[512];
         SocketAddress socketAddress = receive(request);
 
         DnsMessage dnsMessage = DnsMessage.from(request);
+        dnsMessage.answers().clear();
         for (DnsMessage message : dnsMessage.splitQuestions()) {
            final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                    .order(ByteOrder.BIG_ENDIAN);
-           dnsMessage.encode(byteBuffer);
+           message.encode(byteBuffer);
            send(byteBuffer.array(), forwardAddress);
 
            byte[] received = new byte[512];
@@ -37,7 +39,7 @@ public class ForwardedRequestResolver implements RequestResolver {
         final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                 .order(ByteOrder.BIG_ENDIAN);
         dnsMessage.encode(byteBuffer);
-       send(byteBuffer.array(), socketAddress);
+        send(byteBuffer.array(), socketAddress);
     }
 
     @Override
