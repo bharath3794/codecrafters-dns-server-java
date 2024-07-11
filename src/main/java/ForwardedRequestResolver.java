@@ -25,6 +25,7 @@ public class ForwardedRequestResolver implements RequestResolver {
         SocketAddress socketAddress = receive(request);
 
         DnsMessage dnsMessage = DnsMessage.from(request);
+        Short qdCount = dnsMessage.header().getQdCount();
         dnsMessage.answers().clear();
         List<Answer> answers = new ArrayList<>();
         for (DnsMessage message : dnsMessage.splitQuestions()) {
@@ -46,7 +47,7 @@ public class ForwardedRequestResolver implements RequestResolver {
                 .order(ByteOrder.BIG_ENDIAN);
 
         Header requestHeader = dnsMessage.header();
-        requestHeader.queryResponse(true);
+        requestHeader.queryResponse(true).qdCount(qdCount).anCount(qdCount);
         new DnsMessage(requestHeader, dnsMessage.questions(), answers).encode(byteBuffer);
         System.out.println("Sending to Local");
         send(byteBuffer.array(), socketAddress);
