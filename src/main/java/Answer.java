@@ -1,6 +1,7 @@
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /*
 Reference:
@@ -166,6 +167,8 @@ public class Answer {
         var rdLength = byteBuffer.getShort();
         var rData = new byte[rdLength];
         byteBuffer.get(rData);
+
+        System.out.println("Parsed anRData " + Arrays.toString(rData));
 
         return new Answer().anName(anName).anType(anType).anClass(anClass).anTtl(ttl).anRLength(rdLength).anRData(rData);
     }
