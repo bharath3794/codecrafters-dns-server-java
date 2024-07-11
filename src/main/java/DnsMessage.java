@@ -12,7 +12,7 @@ public record DnsMessage(Header header, List<Question> questions, List<Answer> a
 
     public static DnsMessage from(byte[] buffer) {
         ByteBuffer inputByteBuffer = ByteBuffer.wrap(buffer);
-        System.out.println("inputByteBuffer = " + Arrays.toString(inputByteBuffer.array()));
+//        System.out.println("inputByteBuffer = " + Arrays.toString(inputByteBuffer.array()));
         Header header = Header.decode(inputByteBuffer);
         header.queryResponse(true)
                 .authoritativeAnswer(false)
