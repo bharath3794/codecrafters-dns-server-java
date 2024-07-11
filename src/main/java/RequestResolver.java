@@ -12,11 +12,11 @@ public interface RequestResolver extends RequestSender, RequestReceiver {
     default SocketAddress receive(byte[] buffer) throws IOException {
         final DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         getSocket().receive(packet);
-        System.out.println("Received data");
-
-        System.out.println("Read Header Section from Received Packet: " + Arrays.toString(Arrays.copyOfRange(packet.getData(), 0, 12)));
-
-        System.out.println("Read Question Section from Received Packet: " + Arrays.toString(Arrays.copyOfRange(packet.getData(), 12, packet.getLength())));
+//        System.out.println("Received data");
+//
+//        System.out.println("Read Header Section from Received Packet: " + Arrays.toString(Arrays.copyOfRange(packet.getData(), 0, 12)));
+//
+//        System.out.println("Read Question Section from Received Packet: " + Arrays.toString(Arrays.copyOfRange(packet.getData(), 12, packet.getLength())));
         return packet.getSocketAddress();
     }
 
