@@ -23,6 +23,7 @@ public record DnsMessage(Header header, List<Question> questions, List<Answer> a
         }
         for (int i=0; i<header.getAnCount(); i++) {
             Answer answer = Answer.decode(inputByteBuffer, inputByteBuffer.position());
+            System.out.println("Answer IPV4 " + Arrays.toString(answer.getAnRData()));
             answers.add(answer);
         }
         return new DnsMessage(header, questions, answers);
