@@ -3,6 +3,7 @@ import java.net.DatagramSocket;
 import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +30,12 @@ public class ForwardedRequestResolver implements RequestResolver {
            final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                    .order(ByteOrder.BIG_ENDIAN);
            message.encode(byteBuffer);
+            System.out.println("Sending message");
            send(byteBuffer.array(), forwardAddress);
 
            byte[] received = new byte[512];
            receive(received, forwardAddress);
+            System.out.println("Received message");
            dnsMessage.answers().addAll(DnsMessage.from(received).answers());
         }
 
