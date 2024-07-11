@@ -33,7 +33,7 @@ public class ForwardedRequestResolver implements RequestResolver {
                     .queryResponse(false)
                     .qdCount((short) 1)
                     .anCount((short) 0);
-            DnsMessage message = new DnsMessage(header, question, null);
+            DnsMessage message = new DnsMessage(header, question);
            final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                    .order(ByteOrder.BIG_ENDIAN);
            message.encode(byteBuffer);

@@ -6,6 +6,10 @@ import java.util.List;
 
 public record DnsMessage(Header header, List<Question> questions, List<Answer> answers) {
 
+    public DnsMessage(Header header, Question question) {
+        this(header, List.of(question), List.of());
+    }
+
     public DnsMessage(Header header, Question question, Answer answer) {
         this(header, List.of(question), List.of(answer));
     }
