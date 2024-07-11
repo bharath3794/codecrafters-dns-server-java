@@ -50,7 +50,7 @@ public class ForwardedRequestResolver implements RequestResolver {
                 .order(ByteOrder.BIG_ENDIAN);
 
         Header requestHeader = dnsMessage.header();
-        requestHeader.queryResponse(true).qdCount(qdCount).anCount(qdCount);
+        requestHeader.queryResponse(true).qdCount(qdCount).anCount(qdCount).rCode(requestHeader.getOpCode() == OpCode.QUERY ? RCode.NO_ERROR : RCode.NOT_IMPLEMENTED);
         new DnsMessage(requestHeader, dnsMessage.questions(), answers).encode(byteBuffer);
         System.out.println("Sending to Local");
         send(byteBuffer.array(), socketAddress);
