@@ -176,6 +176,6 @@ public class Answer {
                 .putShort(this.getAnClass())
                 .putInt(this.getAnTtl())
                 .putShort(this.getAnRLength())
-                .put(Answer.encodedAnRData(this.getAnRData()));
+                .put(this.getAnRData());
     }
 }
