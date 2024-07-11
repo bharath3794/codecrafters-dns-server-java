@@ -34,20 +34,4 @@ public record DnsMessage(Header header, List<Question> questions, List<Answer> a
         this.questions().stream().forEach(question -> question.encode(byteBuffer));
         this.answers().stream().forEach(answer -> answer.encode(byteBuffer));
     }
-
-    public List<DnsMessage> splitQuestions() {
-        List<DnsMessage> messages = new ArrayList<>();
-        if (this.questions().size() <= 1) {
-            messages.add(this);
-            return messages;
-        }
-        for (int i=0; i<this.questions().size(); i++){
-            Answer answer = new Answer();
-            if (i < this.answers().size()) {
-                answer = this.answers().get(i);
-            }
-            messages.add(new DnsMessage(this.header(), this.questions().get(i), answer));
-        }
-        return messages;
-    }
 }

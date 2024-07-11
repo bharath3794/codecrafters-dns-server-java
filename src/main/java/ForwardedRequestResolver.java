@@ -28,9 +28,12 @@ public class ForwardedRequestResolver implements RequestResolver {
         Short qdCount = dnsMessage.header().getQdCount();
         dnsMessage.answers().clear();
         List<Answer> answers = new ArrayList<>();
-        for (DnsMessage message : dnsMessage.splitQuestions()) {
-            message.header().queryResponse(false).qdCount((short) 1);
-            message.answers().clear();
+        for (Question question : dnsMessage.questions()) {
+            Header header = dnsMessage.header()
+                    .queryResponse(false)
+                    .qdCount((short) 1)
+                    .anCount((short) 0);
+            DnsMessage message = new DnsMessage(header, question, null);
            final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                    .order(ByteOrder.BIG_ENDIAN);
            message.encode(byteBuffer);
