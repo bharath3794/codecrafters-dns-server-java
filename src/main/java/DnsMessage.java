@@ -42,7 +42,11 @@ public record DnsMessage(Header header, List<Question> questions, List<Answer> a
             return messages;
         }
         for (int i=0; i<this.questions().size(); i++){
-            messages.add(new DnsMessage(this.header(), this.questions().get(i), this.answers().get(i)));
+            Answer answer = new Answer();
+            if (i < this.answers().size()) {
+                answer = this.answers().get(i);
+            }
+            messages.add(new DnsMessage(this.header(), this.questions().get(i), answer));
         }
         return messages;
     }
