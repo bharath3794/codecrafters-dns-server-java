@@ -51,6 +51,10 @@ public record DnsMessage(Header header, List<Question> questions, List<Answer> a
 
     public List<DnsMessage> splitQuestions() {
         List<DnsMessage> messages = new ArrayList<>();
+        if (this.questions().size() <= 1) {
+            messages.add(this);
+            return messages;
+        }
         for (int i=0; i<this.questions().size(); i++){
             messages.add(new DnsMessage(this.header(), this.questions().get(i), this.answers().get(i)));
         }
