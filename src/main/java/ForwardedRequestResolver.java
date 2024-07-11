@@ -19,7 +19,7 @@ public class ForwardedRequestResolver implements RequestResolver {
 
     @Override
     public void resolve() throws IOException {
-        System.out.println("Resolving ");
+        System.out.println("Request assigned to " + this.getClass().getSimpleName());
         byte[] request = new byte[512];
         SocketAddress socketAddress = receive(request);
 
