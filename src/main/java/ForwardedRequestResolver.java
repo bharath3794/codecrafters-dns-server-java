@@ -30,18 +30,19 @@ public class ForwardedRequestResolver implements RequestResolver {
            final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                    .order(ByteOrder.BIG_ENDIAN);
            message.encode(byteBuffer);
-            System.out.println("Sending message");
+            System.out.println("Sending to forward address");
            send(byteBuffer.array(), forwardAddress);
 
            byte[] received = new byte[512];
            receive(received, forwardAddress);
-            System.out.println("Received message");
+            System.out.println("Received from forward address");
            dnsMessage.answers().addAll(DnsMessage.from(received).answers());
         }
 
         final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                 .order(ByteOrder.BIG_ENDIAN);
         dnsMessage.encode(byteBuffer);
+        System.out.println("Sending to Local");
         send(byteBuffer.array(), socketAddress);
     }
 
