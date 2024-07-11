@@ -224,7 +224,7 @@ public class Header {
         return (short) flags;
     }
 
-    public void loadToByteBuffer(ByteBuffer buffer) {
+    public void encode(ByteBuffer buffer) {
         buffer.putShort(this.getMessageId())
                 .putShort(getFlags())
                 .putShort(this.getQdCount())
@@ -233,7 +233,7 @@ public class Header {
                 .putShort(this.getArCount());
     }
 
-    public static Header decodeHeader(ByteBuffer byteBuffer) {
+    public static Header decode(ByteBuffer byteBuffer) {
         Header header = new Header();
         // Position buffer to starting index of header section
         byteBuffer.position(Header.START_INDEX);

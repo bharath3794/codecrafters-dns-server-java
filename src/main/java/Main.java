@@ -8,67 +8,12 @@ import java.util.Arrays;
 import java.util.List;
 
 public class Main {
-  public static void main(String[] args){
+  public static void main(String[] args) {
     // You can use print statements as follows for debugging, they'll be visible when running tests.
     System.out.println("Logs from your program will appear here!");
 
-    // Uncomment this block to pass the first stage
-    //
-     try(DatagramSocket serverSocket = new DatagramSocket(2053)) {
-       while(true) {
-         final byte[] buf = new byte[512];
-         final DatagramPacket packet = new DatagramPacket(buf, buf.length);
-         serverSocket.receive(packet);
-         System.out.println("Received data");
-
-         System.out.println("Read Header Section from Received Packet: " + Arrays.toString(Arrays.copyOfRange(packet.getData(), 0, 12)));
-
-         System.out.println("Read Question Section from Received Packet: " + Arrays.toString(Arrays.copyOfRange(packet.getData(), 12, packet.getLength())));
-
-         ByteBuffer inputByteBuffer = ByteBuffer.wrap(buf);
-         System.out.println("inputByteBuffer = " + Arrays.toString(inputByteBuffer.array()));
-
-         Header header = Header.decodeHeader(inputByteBuffer);
-         header.queryResponse(true)
-                 .authoritativeAnswer(false)
-                 .truncation(false)
-                 .recursionAvailable(false)
-                 .reserved1(false)
-                 .reserved2(false)
-                 .reserved3(false)
-                 .rCode(header.getOpCode() == OpCode.QUERY ? RCode.NO_ERROR : RCode.NOT_IMPLEMENTED);
-
-         header.anCount(header.getQdCount());
-         final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
-                 .order(ByteOrder.BIG_ENDIAN);
-         header.loadToByteBuffer(byteBuffer);
-
-         List<Question> questions = new ArrayList<>();
-         List<Answer> answers = new ArrayList<>();
-         for (int i=0; i<header.getQdCount(); i++) {
-           Question question = Question.decodeQuestion(inputByteBuffer);
-           question.qType((short) 1)
-                   .qClass((short) 1);
-           questions.add(question);
-           Answer answer = new Answer();
-           answer.anName(question.getqName())
-                   .anType((short) 1)
-                   .anClass((short) 1)
-                   .anTtl(60)
-                   .anRLength((short) 4)
-                   .anRData(new byte[]{8,8,8,8});
-           answers.add(answer);
-         }
-
-         questions.stream().forEach(question -> question.loadToByteBuffer(byteBuffer));
-         answers.stream().forEach(answer -> answer.loadToByteBuffer(byteBuffer));
-
-         final byte[] bufResponse = byteBuffer.array();
-         final DatagramPacket packetResponse = new DatagramPacket(bufResponse, bufResponse.length, packet.getSocketAddress());
-         serverSocket.send(packetResponse);
-       }
-     } catch (IOException e) {
-         System.out.println("IOException: " + e.getMessage());
-     }
+    try (DnsServer dnsServer = new DnsServer(2053)){
+      dnsServer.start();
+    }
   }
 }

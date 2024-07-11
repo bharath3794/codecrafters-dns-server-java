@@ -148,7 +148,7 @@ public class Answer {
         }
     }
 
-    public void loadToByteBuffer(ByteBuffer buffer) {
+    public void encode(ByteBuffer buffer) {
         buffer.put(Question.encodedDomainName(this.getAnName()))
                 .putShort(this.getAnType())
                 .putShort(this.getAnClass())

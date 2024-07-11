@@ -98,7 +98,7 @@ public class Question {
         }
     }
 
-    public void loadToByteBuffer(ByteBuffer buffer) {
+    public void encode(ByteBuffer buffer) {
         buffer.put(Question.encodedDomainName(this.getqName()))
                 .putShort(this.getqType())
                 .putShort(this.getqClass());
@@ -130,17 +130,18 @@ public class Question {
             // Check if length represents a pointer offset with first two bits set
             // Pointer offset will usually be of 16 bits ~ 2 bytes
             if ((curLength & 0b1100_0000) == 0b1100_0000) {
-                // compressed label
+                // read compressed label
                 if (!byteBuffer.hasRemaining()) {
                     throw new IndexOutOfBoundsException("ByteBuffer has no next byte to read pointer offset");
                 }
                 // Pointer offset represents last 6 bits of curLength and next byte (8 bits) with total 14 bits out of 16 bits
                 int pointerOffset = ((curLength & 0b0011_1111) << 8) | (byteBuffer.get() & 0b1111_1111);
+                // Track the position of next byte after pointer offset to move it back
                 if (newPosition == 0)
                     newPosition = byteBuffer.position();
                 byteBuffer.position(pointerOffset);
             } else {
-                // uncompressed label
+                // read uncompressed label
                 if (
                         !sb.isEmpty()
                     // Below statement also works same
@@ -161,7 +162,7 @@ public class Question {
         return sb.toString();
     }
 
-    public static Question decodeQuestion(ByteBuffer byteBuffer, int startPosition) {
+    public static Question decode(ByteBuffer byteBuffer, int startPosition) {
         Question question = new Question();
 
         // Position buffer to starting index of header section
@@ -184,7 +185,7 @@ public class Question {
                 .qClass(qClass);
     }
 
-    public static Question decodeQuestion(ByteBuffer byteBuffer) {
-        return Question.decodeQuestion(byteBuffer, Question.START_INDEX);
+    public static Question decode(ByteBuffer byteBuffer) {
+        return Question.decode(byteBuffer, Question.START_INDEX);
     }
 }
