@@ -27,7 +27,7 @@ public class ForwardedRequestResolver implements RequestResolver {
         DnsMessage dnsMessage = DnsMessage.from(request);
         dnsMessage.answers().clear();
         for (DnsMessage message : dnsMessage.splitQuestions()) {
-//            message.header().queryResponse(false);
+            message.header().queryResponse(false);
             message.answers().clear();
            final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                    .order(ByteOrder.BIG_ENDIAN);
@@ -43,6 +43,7 @@ public class ForwardedRequestResolver implements RequestResolver {
 
         final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                 .order(ByteOrder.BIG_ENDIAN);
+        dnsMessage.header().queryResponse(true);
         dnsMessage.encode(byteBuffer);
         System.out.println("Sending to Local");
         send(byteBuffer.array(), socketAddress);
