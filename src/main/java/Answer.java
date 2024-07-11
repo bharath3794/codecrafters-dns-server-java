@@ -148,6 +148,28 @@ public class Answer {
         }
     }
 
+    public static Answer decode(ByteBuffer byteBuffer, int startPosition) {
+        Answer answer = new Answer();
+
+        // Position buffer to starting index of header section
+        byteBuffer.position(startPosition);
+
+
+//        System.out.println("Set byteBuffer.position() to = " + byteBuffer.position());
+        // Extract Labels
+        String anName = Question.readLabels(byteBuffer);
+//        System.out.println("qName: " + qName);
+
+        var anType = byteBuffer.getShort();
+        var anClass = byteBuffer.getShort();
+        var ttl = byteBuffer.getInt();
+        var rdLength = byteBuffer.getShort();
+        var rData = new byte[rdLength];
+        byteBuffer.get(rData);
+
+        return new Answer().anName(anName).anType(anType).anClass(anClass).anTtl(ttl).anRLength(rdLength).anRData(rData);
+    }
+
     public void encode(ByteBuffer buffer) {
         buffer.put(Question.encodedDomainName(this.getAnName()))
                 .putShort(this.getAnType())

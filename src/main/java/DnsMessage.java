@@ -14,30 +14,15 @@ public record DnsMessage(Header header, List<Question> questions, List<Answer> a
         ByteBuffer inputByteBuffer = ByteBuffer.wrap(buffer);
 //        System.out.println("inputByteBuffer = " + Arrays.toString(inputByteBuffer.array()));
         Header header = Header.decode(inputByteBuffer);
-        header.queryResponse(true)
-                .authoritativeAnswer(false)
-                .truncation(false)
-                .recursionAvailable(false)
-                .reserved1(false)
-                .reserved2(false)
-                .reserved3(false)
-                .rCode(header.getOpCode() == OpCode.QUERY ? RCode.NO_ERROR : RCode.NOT_IMPLEMENTED);
-        header.anCount(header.getQdCount());
 
         List<Question> questions = new ArrayList<>();
         List<Answer> answers = new ArrayList<>();
         for (int i=0; i<header.getQdCount(); i++) {
             Question question = Question.decode(inputByteBuffer);
-            question.qType((short) 1)
-                    .qClass((short) 1);
             questions.add(question);
-            Answer answer = new Answer();
-            answer.anName(question.getqName())
-                    .anType((short) 1)
-                    .anClass((short) 1)
-                    .anTtl(60)
-                    .anRLength((short) 4)
-                    .anRData(new byte[]{8,8,8,8});
+        }
+        for (int i=0; i<header.getAnCount(); i++) {
+            Answer answer = Answer.decode(inputByteBuffer, inputByteBuffer.position());
             answers.add(answer);
         }
         return new DnsMessage(header, questions, answers);

@@ -26,8 +26,9 @@ public class ForwardedRequestResolver implements RequestResolver {
 
         DnsMessage dnsMessage = DnsMessage.from(request);
         dnsMessage.answers().clear();
+        List<Answer> answers = new ArrayList<>();
         for (DnsMessage message : dnsMessage.splitQuestions()) {
-            message.header().queryResponse(false);
+            message.header().queryResponse(false).qdCount((short) 1);
             message.answers().clear();
            final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                    .order(ByteOrder.BIG_ENDIAN);
@@ -38,13 +39,15 @@ public class ForwardedRequestResolver implements RequestResolver {
            byte[] received = new byte[512];
            receive(received, forwardAddress);
             System.out.println("Received from forward address");
-           dnsMessage.answers().addAll(DnsMessage.from(received).answers());
+            answers.addAll(DnsMessage.from(received).answers());
         }
 
         final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                 .order(ByteOrder.BIG_ENDIAN);
-        dnsMessage.header().queryResponse(true);
-        dnsMessage.encode(byteBuffer);
+
+        Header requestHeader = dnsMessage.header();
+        requestHeader.queryResponse(true);
+        new DnsMessage(requestHeader, dnsMessage.questions(), answers).encode(byteBuffer);
         System.out.println("Sending to Local");
         send(byteBuffer.array(), socketAddress);
     }

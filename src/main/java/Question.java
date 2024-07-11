@@ -119,7 +119,7 @@ public class Question {
             2. Calculating Offset: The pointer offset is calculated from the next 14 bits.
 
      */
-    private static String readLabels(ByteBuffer byteBuffer) {
+    public static String readLabels(ByteBuffer byteBuffer) {
         int curLength;
         StringBuilder sb = new StringBuilder();
         byte[] byteArr = byteBuffer.array();
