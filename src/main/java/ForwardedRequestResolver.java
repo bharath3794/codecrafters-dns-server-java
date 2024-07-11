@@ -27,6 +27,7 @@ public class ForwardedRequestResolver implements RequestResolver {
         DnsMessage dnsMessage = DnsMessage.from(request);
         dnsMessage.answers().clear();
         for (DnsMessage message : dnsMessage.splitQuestions()) {
+            message.header().queryResponse(false);
             message.answers().clear();
            final ByteBuffer byteBuffer = ByteBuffer.allocate(512)
                    .order(ByteOrder.BIG_ENDIAN);
